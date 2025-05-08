@@ -1,99 +1,48 @@
-"use client";
+import AdvocatesTable from "@/client/advocatesTable/advocatesTable";
+import { Pagination } from "@/client/pagination/pagination";
+import Search from "@/client/search/search";
+import { Advocate, advocateLimit } from "@/db/seed/advocates";
+import { Flex, Title } from "@mantine/core";
 
-import { Advocate } from "@/db/seed/advocates";
-import { ChangeEvent, useEffect, useState } from "react";
+export interface HomeProps {
+  searchParams?: Promise<{
+    query?: string;
+    page?: string;
+  }>;
+}
+async function fetchFilteredAdvocates(
+  query: string,
+  currentPage: number
+): Promise<{
+  data: Advocate[];
+  totalCount: number;
+}> {
+  const response = await fetch(
+    `http://localhost:3000/api/advocates?query=${query}&page=${currentPage}`
+  );
+  if (!response.ok) {
+    return {
+      data: [],
+      totalCount: 0,
+    };
+  }
+  return response.json();
+}
 
-export default function Home() {
-  const [advocates, setAdvocates] = useState<Advocate[]>([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
-
-  useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        const advocates: Advocate[] = jsonResponse.data;
-        setAdvocates(advocates);
-        setFilteredAdvocates(advocates);
-      });
-    });
-  }, []);
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = e.target.value;
-
-    const searchTermElement = document.getElementById("search-term");
-    if (searchTermElement) {
-      searchTermElement.innerHTML = searchTerm;
-    }
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.toString().includes(searchTerm) ||
-        advocate.phoneNumber.toString().includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
-  };
-
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
-
+export default async function Home(props: Readonly<HomeProps>) {
+  const searchParams = await props.searchParams;
+  const query = searchParams?.query ?? "";
+  const currentPage = Number(searchParams?.page) || 1;
+  const result = await fetchFilteredAdvocates(query, currentPage);
+  const totalPageCount = Math.ceil(result.totalCount / advocateLimit);
   return (
     <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
-      </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>City</th>
-            <th>Degree</th>
-            <th>Specialties</th>
-            <th>Years of Experience</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate, index) => {
-            return (
-              <tr key={index}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s, index) => (
-                    <div key={index}>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Flex direction="column" gap="md">
+        <Title order={1}>Solace Advocates</Title>
+        <Search />
+        <AdvocatesTable advocates={result.data} />
+        <Pagination total={totalPageCount} />
+      </Flex>
     </main>
   );
 }

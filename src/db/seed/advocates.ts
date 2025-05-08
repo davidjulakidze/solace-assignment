@@ -1,6 +1,3 @@
-import db from "..";
-import { advocates } from "../schema";
-
 const specialties = [
   "Bipolar",
   "LGBTQ",
@@ -46,6 +43,8 @@ export interface Advocate {
   yearsOfExperience: number;
   phoneNumber: number;
 }
+
+export const advocateLimit = 10;
 
 const advocateData: Advocate[] = [
   {
