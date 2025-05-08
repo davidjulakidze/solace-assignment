@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../db";
 import { advocates } from "../../../db/schema";
-import { ilike, or, count, sql } from "drizzle-orm";
-import { advocateLimit } from "@/db/seed/advocates";
+import { ilike, or, count, sql, asc, desc } from "drizzle-orm";
+import { Advocate, advocateLimit } from "@/db/seed/advocates";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("query");
   const page = request.nextUrl.searchParams.get("page");
-
-  let filterForDb;
+  const sortBy = request.nextUrl.searchParams.get("sortBy");
+  const sort = request.nextUrl.searchParams.get("sort");
+  let filterForDb = undefined;
 
   if (query && query.trim() !== "") {
     const searchQuery = `%${query}%`;
@@ -31,12 +32,24 @@ export async function GET(request: NextRequest) {
     filterForDb = undefined;
   }
 
+  const offset = page ? (Number(page) - 1) * advocateLimit : 0;
+
+  let orderBy = undefined;
+  if (sortBy && sort && sortBy in advocates) {
+    if (sort === "asc") {
+      orderBy = asc(advocates[sortBy as keyof Advocate]);
+    } else if (sort === "desc") {
+      orderBy = desc(advocates[sortBy as keyof Advocate]);
+    }
+  }
+
   const dataPromise = db
     .select()
     .from(advocates)
     .where(filterForDb)
     .limit(advocateLimit)
-    .offset(page ? (Number(page) - 1) * advocateLimit : 0);
+    .offset(offset)
+    .orderBy(orderBy ?? advocates.firstName);
 
   const totalCountPromise = db
     .select({ count: count() })
