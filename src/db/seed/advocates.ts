@@ -37,7 +37,17 @@ const randomSpecialty = () => {
   return [random1, random2];
 };
 
-const advocateData = [
+export interface Advocate {
+  firstName: string;
+  lastName: string;
+  city: string;
+  degree: string;
+  specialties: string[];
+  yearsOfExperience: number;
+  phoneNumber: number;
+}
+
+const advocateData: Advocate[] = [
   {
     firstName: "John",
     lastName: "Doe",
