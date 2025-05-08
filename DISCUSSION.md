@@ -7,18 +7,21 @@
 ### 1. **Full-Text Search**
    - Implement PostgreSQL's full-text search for better performance and relevance ranking. Could also use ElasticSearch.
 
-### 2. **Keyset Pagination**
+### 2. **Sorting Multiple Columns**
+   - Currently the table only supports sorting by one column, if I had more time I would make it so that it can sort by multiple columns.
+
+### 3. **Keyset Pagination**
    - Replace offset-based pagination with keyset pagination for improved performance on large datasets. Maybe use something like lastSeenName or lastSeenId
 
-### 3. **Frontend Enhancements**
+### 4. **Frontend Enhancements**
    - Add loading indicators for API calls.
    - Improve the UI/UX for sorting and filtering.
 
-### 4. **Advocate Schema**
+### 5. **Advocate Schema**
    - Add additional columns to Advocates so that it is easier to match
    - some good columns would be "Known Languages,  Availability, Gender, Reviews and Ratings, e.t.c
 
-### 5. **Advocate Profile**
+### 6. **Advocate Profile**
    - Add a page for applying as an advocate, create profile, e.t.c
    - Add a profile picture to advocates rows, add ability to upload a profile pictures as an advocate
 
