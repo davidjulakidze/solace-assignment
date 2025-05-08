@@ -12,6 +12,7 @@ export const Pagination = (props: Readonly<PaginationProps>) => {
   const pathname = usePathname();
 
   const handlePageChange = (page: number) => {
+    if (page < 1 || page > total) return;
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
     replace(`${pathname}?${params.toString()}`);

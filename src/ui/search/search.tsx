@@ -17,7 +17,7 @@ export default function Search() {
       params.delete("query");
     }
     replace(`${pathname}?${params.toString()}`);
-  }, 500);
+  }, 800);
 
   return (
     <Flex direction="column" gap="md" w={"30%"}>
